@@ -1,0 +1,185 @@
+\documentclass[a4paper,12pt]{article}
+\pagestyle{empty}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE \textbf{Volleyball's ``freeze'' proposal}}
+\end{center}
+
+There is a proposal being made[1] to change how (beach) volleyball's scoring
+would work at the end of a set: the short version of it is that a team would
+have to win a point while serving to win a set, rather than being able to win
+by scoring a point on the opponent's serve. This is significant as the majority
+of points in both beach and indoor volleyball are won by the receiving team.
+
+\section{Assumptions}
+
+In order to model this, we make a couple of assumptions:
+
+\begin{itemize}
+  \item That the chance of each team winning a point when serving is equal.
+  \item That the chance of a team winning a point when serving is independent
+    of the match situation.
+\end{itemize}
+
+The first assumption seems reasonable for a close match, which is all we really
+care about; the second assumption may need validating, but we know from other
+sports (particularly baseball and basketball) that ``clutch'' performance is
+largely a myth so I think it's a reasonable assumption to make here until
+proven otherwise.
+
+\section{Current (``no freeze'') modelling}
+
+The example presented in \textit{VolleyballMag} as the situation which will be
+improved by the new proposal is the situation where a team is at set/match
+point, up by just one point and receiving - i.e. a scoreline of 19-20, or 14-15
+in the final set. Given that there are only two outcomes of each point (lets
+can be ignored as they do not change the match state), and with the assumptions
+made above, we can produce a state transition diagram for the end of a set:
+
+TODO insert diagram here
+
+Each state is labelled with (Team A score-Team B score, serving team) as
+opposed to the traditional ``serving team first'' notation. The important
+simplification made here is that there are only 4 states once the score
+reaches 20-20: a level scoreline with either team serving, or a team leading by
+one and serving.
+
+As the assumptions made above allow us to model this as a Markov chain, we can
+produce the transition matrix:
+
+$$
+\begin{bmatrix}
+  0 & p & 0 & 0 & 0 & (1-p) & 0 \\
+  0 & 0 & (1-p) & p & 0 & 0 & 0 \\
+  0 & (1-p) & 0 & 0 & 0 & p & 0 \\
+  0 & 0 & 0 & 0 & (1-p) & 0 & p \\
+  0 & 0 & p & (1-p) & 0 & 0 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+\end{bmatrix}
+$$
+
+and from there the set of equations to calculate the absorbtion probability of state 5
+(team A wins) from each initial state, $a_n$:
+
+\begin{eqnarray*}
+  a_0 & = & pa_1 + (1-p)a_5 \\
+  a_1 & = & (1-p)a_2 + pa_3 \\
+  a_2 & = & (1-p)a_1 + pa_5 \\
+  a_3 & = & (1-p)a_4 + pa_6 \\
+  a_4 & = & pa_2 + (1-p)a_3 \\
+  a_5 & = & a_5 \\
+  a_6 & = & a_6
+\end{eqnarray*}
+
+Trivially, $a_5 = 1$ and $a_6 = 0$ so these reduce to:
+
+\begin{eqnarray*}
+  a_0 & = & pa_1 + (1-p) \\
+  a_1 & = & (1-p)a_2 + pa_3 \\
+  a_2 & = & (1-p)a_1 + p \\
+  a_3 & = & (1-p)a_4 \\
+  a_4 & = & pa_2 + (1-p)a_3
+\end{eqnarray*}
+
+We now solve these five simultaneous equations for $a_0$ to $a_4$:
+
+\begin{eqnarray*}
+  a_0 & = & \frac{3 \left(p - 1\right)}{2 p - 3} \\
+  a_1 & = & \frac{2 \left(p - 1\right)}{2 p - 3} \\
+  a_2 & = & \frac{p - 2}{2 p - 3} \\
+  a_3 & = & \frac{p - 1}{2 p - 3} \\
+  a_4 & = & - \frac{1}{2 p - 3}
+\end{eqnarray*}
+
+Of these, we particularly care about $a_0 = \frac{3 \left(p - 1\right)}{2 p -
+3}$, the chance that team A wins given the 19-20 situation in
+\textit{VolleyballMag}.
+
+\section{Freeze modelling}
+
+We can now repeat all the above for the ``freeze'' situation. The state
+transition diagram is as follows:
+
+TODO insert diagram here
+
+and the transition matrix as follows:
+
+$$
+\begin{bmatrix}
+  0 & (1-p) & p & 0 & 0 & 0 \\
+  (1-p) & 0 & 0 & 0 & p & 0 \\
+  0 & 0 & 0 & (1-p) & 0 & p \\
+  0 & 0 & (1-p) & 0 & p & 0 \\
+  0 & 0 & 0 & 0 & 1 & 0 \\
+  0 & 0 & 0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+the absorption probabilities of state 4 as follows:
+
+\begin{eqnarray*}
+  b_0 & = & (1-p)b_1 + pb_2 \\
+  b_1 & = & (1-p)b_0 + pb_4 \\
+  b_2 & = & (1-p)b_3 + pb_5 \\
+  b_3 & = & (1-p)b_2 + pb_4 \\
+  b_4 & = & b_4 \\
+  b_5 & = & b_5
+\end{eqnarray*}
+
+In this case, $b_4 = 1$ and $b_5 = 0$ so these reduce to:
+
+\begin{eqnarray*}
+  b_0 & = & (1-p)b_1 + pb_2 \\
+  b_1 & = & (1-p)b_0 + p \\
+  b_2 & = & (1-p)b_3 \\
+  b_3 & = & (1-p)b_2 + p \\
+\end{eqnarray*}
+
+and we can solve these to get:
+
+\begin{eqnarray*}
+  b_0 & = & \frac{p^{2} - 4 p + 3}{p^{2} - 4 p + 4} \\
+  b_1 & = & \frac{p^{2} - 3 p + 3}{p^{2} - 4 p + 4} \\
+  b_2 & = & \frac{p - 1}{p - 2} \\
+  b_3 & = & - \frac{1}{p - 2}
+\end{eqnarray*}
+
+Again here we are particularly interested in $b_0 = \frac{p^{2} - 4 p +
+3}{p^{2} - 4 p + 4}$.
+
+\section{Results}
+
+From the main results of the previous two sections, we have
+
+\begin{eqnarray*}
+  a_0 & = & \frac{3 \left(p - 1\right)}{2 p - 3} \\
+  b_0 & = & \frac{p^{2} - 4 p + 3}{p^{2} - 4 p + 4}
+\end{eqnarray*}
+
+To get a value for $p$, we can use the information from the
+\textit{VolleyballMag} article:
+
+\begin{quote}
+  the team receiving serve will score 70-80\% of the time
+\end{quote}
+
+to estimate $p = 0.75$. Plugging this into the equations above gives us:
+
+\begin{eqnarray*}
+  a_0 & = & 0.9 \\
+  b_0 & \approx & 0.67
+\end{eqnarray*}
+
+so this proposal would reduce the chance of team A winning by around 23\%, a
+significant amount.
+
+\begin{enumerate}
+  \item \url{https://volleyballmag.com/beach-rule-changes-083020/}
+\end{enumerate}
+
+\end{document}
