@@ -3,8 +3,11 @@ objects := \
 
 all: $(objects)
 
-%.pdf: %.tex
-	pdflatex $<
+vbfreeze.pdf: vbfreeze.tex nofreeze.png freeze.png
+	pdflatex vbfreeze.tex
+
+%.png: %.dot
+	dot -Tpng $< -o $@
 
 clean:
-	rm $(objects)
+	rm $(objects) *.png

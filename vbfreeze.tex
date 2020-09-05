@@ -1,7 +1,9 @@
 \documentclass[a4paper,12pt]{article}
 \pagestyle{empty}
-\usepackage{hyperref}
+
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
 
 \begin{document}
 
@@ -40,7 +42,7 @@ in the final set. Given that there are only two outcomes of each point (lets
 can be ignored as they do not change the match state), and with the assumptions
 made above, we can produce a state transition diagram for the end of a set:
 
-TODO insert diagram here
+\includegraphics[width=\textwidth]{nofreeze.png}
 
 Each state is labelled with (Team A score-Team B score, serving team) as
 opposed to the traditional ``serving team first'' notation. The important
@@ -105,7 +107,7 @@ Of these, we particularly care about $a_0 = \frac{3 \left(p - 1\right)}{2 p -
 We can now repeat all the above for the ``freeze'' situation. The state
 transition diagram is as follows:
 
-TODO insert diagram here
+\includegraphics[width=\textwidth]{freeze.png}
 
 and the transition matrix as follows:
 

@@ -1,0 +1,22 @@
+digraph {
+  rankdir = LR;
+
+  node [ shape = "doublecircle" label = "(20-19, B)" ] N0;
+  node [ shape = "circle" label = "(20-19, A)" ] N1;
+  node [ shape = "circle" label = "(20-20, B)" ] N2;
+  node [ shape = "circle" label = "(20-20, A)" ] N3;
+  node [ shape = "doublecircle" label = "A wins" ] N4;
+  node [ shape = "doublecircle" label = "B wins" ] N5;
+
+  N0 -> N2 [ label = "p" ];
+  N0 -> N1 [ label = "1-p" ];
+
+  N1 -> N4 [ label = "p" ];
+  N1 -> N0 [ label = "1-p" ];
+
+  N2 -> N5 [ label = "p" ];
+  N2 -> N3 [ label = "1-p" ];
+
+  N3 -> N4 [ label = "p" ];
+  N3 -> N2 [ label = "1-p" ];
+}
